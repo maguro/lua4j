@@ -29,6 +29,31 @@ package net.sf.lua4j;
 {
 package net.sf.lua4j;
 }
+@lexer::members
+{
+protected boolean isLongBracketOpen(int length)
+{
+	if (input.LA(1) != ']') return true;
+
+	for (int i = 0; i != length; ++i)
+	{
+		if (input.LA(i + 2) != '=') return true;
+	}
+
+	return (input.LA(length + 2) != ']');
+}
+
+protected void matchLongBracketClose(int length) throws MismatchedTokenException
+{
+	StringBuilder builder = new StringBuilder();
+
+	builder.append(']');
+	for (int i = 0; i != length; ++i) builder.append('=');
+	builder.append(']');
+
+	match(builder.toString());
+}
+}
 
 chunk
     : (stat ';'?)* (laststat ';'?)?
@@ -221,8 +246,8 @@ CHAR_STRING
    ;
 
 LONG_STRING
-	:	'[' ('=')* '[' ( ESCAPE_SEQUENCE | ~('\\'|']') )* ']' ('=')* ']'
-	;
+	: LONG_BRACKET
+    ;
 
 fragment
 ESCAPE_SEQUENCE
@@ -246,3 +271,13 @@ UNICODE_ESCAPE
 fragment
 HEX_DIGIT : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
+COMMENT
+    : '--' LONG_BRACKET { skip(); }
+    ;
+
+fragment
+LONG_BRACKET
+@init { int n = 0; }
+ 	: ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); }
+    ;
+        
