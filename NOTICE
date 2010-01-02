@@ -1,3 +1,13 @@
-Lua4j
-Copyright 2009 The original author or authors
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Lua4j distribution.              ==
+=========================================================================
 
+=========================================================================
+
+The Lua4j build relies on code supplied by Alexey Badalov.  The following
+notice covers the code:
+
+  Copyright 2008 Alexey Badalov
+
+  Apache License 2.0
