@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 (C) The original author or authors
+ * Copyright 2009-2010 (C) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 grammar Lua;
-
 options
 {
     output=AST;
     backtrack=true;
+}
+
+tokens {
+	EXPLIST;
+	NAMELIST;
+	PARAMETERS;
+	PAREN;
+	TABLEREF;
+	VARLIST;
 }
 
 @header 
@@ -27,6 +35,21 @@ package net.sf.lua4j;
 }
 @lexer::header
 {
+/**
+ * Copyright 2009-2010 (C) The original author or authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.sf.lua4j;
 }
 @lexer::members
@@ -64,7 +87,7 @@ block
     ;
 
 stat
-    : varlist '=' varlist
+    : varlist '='^ explist
 	| functioncall
     | 'do' block 'end'
     | 'while' exp 'do' block 'end'
@@ -87,25 +110,25 @@ funcname
     ;
 
 varlist
-    : var (',' var)*
+    : var (',' var)* -> ^(VARLIST var+)
     ;
 
 var
-    : (NAME
-    	| '(' exp ')' varEnd)
-	  varEnd*
+    : NAME varEnd*
+    | '(' exp ')' varEnd+
     ;
 
 varEnd
-	: nameAndArgs* ('[' exp ']' | '.' NAME)
+	: nameAndArgs* '[' exp ']'
+	| nameAndArgs* '.' NAME
 	;
 
 namelist
-    : NAME (',' NAME)*
+    : NAME (',' NAME)* -> ^(NAMELIST NAME+)
     ;
 
 explist
-    : exp (',' exp)*
+    : exp (',' exp)* -> ^(EXPLIST exp+)
     ;
 
 exp
@@ -116,8 +139,20 @@ exp
         | prefixexp
 	    | tableconstructor
 	    | '...'
-	    | unop exp)
-	  (binop exp)*
+	    | unopExp
+	  )
+	  (binop^ exp)*
+	;
+
+unopExp
+	: unop^ ('nil' | 'false' | 'true'
+	    | number
+	    | string
+	    | function
+        | prefixexp
+	    | tableconstructor
+	    | '...'
+	  )
 	;
 
 prefixexp
@@ -130,7 +165,7 @@ functioncall
 
 varOrExp 
 	: var
-	| '(' exp ')'
+	| '(' exp ')' -> ^(PAREN exp)
 	;
 
 nameAndArgs
@@ -152,8 +187,9 @@ funcbody
 	;
 
 parlist
-    : namelist (',' '...')?
-    | '...'
+    : namelist -> ^(PARAMETERS namelist)
+    | namelist ',' '...' -> ^(PARAMETERS namelist '...')
+    | '...' -> ^(PARAMETERS '...')
     ;
 
 tableconstructor
@@ -204,10 +240,10 @@ NAME
 	;
 
 number
-    : INTEGER
-    | FLOAT
-    | EXPONENT
-    | HEX
+    : INTEGER<IntNode>
+    | FLOAT<FloatNode>
+    | EXPONENT<FloatNode>
+    | HEX<IntNode>
     ;
 
 INTEGER
@@ -269,15 +305,28 @@ UNICODE_ESCAPE
     ;
 
 fragment
-HEX_DIGIT : ('0'..'9'|'a'..'f'|'A'..'F') ;
+HEX_DIGIT 
+	: ('0'..'9' | 'a'..'f' | 'A'..'F') 
+	;
 
-COMMENT
+LONG_COMMENT
     : '--' LONG_BRACKET { skip(); }
-    ;
+	;
 
 fragment
 LONG_BRACKET
 @init { int n = 0; }
  	: ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); }
     ;
+
+LINE_COMMENT
+	: '--' ~('\n' | '\r')* '\r'? '\n' { skip(); }
+	;
         
+WS  
+	:  (' ' | '\t' | '\u000C') { skip(); }
+    ;
+    
+NEWLINE	
+	: ('\r')? '\n' { skip(); }
+	;
