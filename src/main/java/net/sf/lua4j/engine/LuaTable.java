@@ -16,14 +16,13 @@
  */
 package net.sf.lua4j.engine;
 
-import java.util.logging.Logger;
+import java.util.Map;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaTable
+public interface LuaTable extends LuaObject, Map<String, LuaObject>
 {
-    private final static String CLASS_NAME = LuaTable.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    
 }

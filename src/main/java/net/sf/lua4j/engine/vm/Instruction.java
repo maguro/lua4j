@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2009 (C) The original author or authors
+ * Copyright 2010 (C) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
  */
 package net.sf.lua4j.engine.vm;
 
-import java.util.logging.Logger;
-
 /**
  * @version $Revision: $ $Date: $
  */
-public class Instruction
+public interface Instruction
 {
-    private final static String CLASS_NAME = Instruction.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    public static final byte HALT = 0x00;
 }

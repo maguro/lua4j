@@ -22,8 +22,13 @@ import java.util.logging.Logger;
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaFunction
+public class LuaFunction implements LuaObject
 {
     private final static String CLASS_NAME = LuaFunction.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+
+    public Object getUnderlying()
+    {
+        throw new UnsupportedOperationException("Lua function has no underlying object");
+    }
 }

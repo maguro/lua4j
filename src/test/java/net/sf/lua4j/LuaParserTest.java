@@ -41,9 +41,6 @@ public class LuaParserTest
 
         LuaParser.string_return sting = getParser("[===[\nte]==]s]====]t]===]").string();
 
-//3   3.0   3.1416   314.16e-2   0.31416E1   0xff   0x56
-
-
         LuaParser.number_return number = getParser("3").number();
         number = getParser("3.0").number();
         number = getParser("3.1416").number();
@@ -60,6 +57,10 @@ public class LuaParserTest
         exp = getParser("-(i+1)").exp();
 
         LuaParser.chunk_return chunk = getParser("x = -i+1").chunk();
+        chunk = getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk();
+
+        chunk = getParser("a = 1 b = 2").chunk();
+        chunk = getParser("a = 1 b =\n2").chunk();
     }
 
     private LuaParser getParser(String src) throws IOException
@@ -76,5 +77,15 @@ public class LuaParserTest
         LuaLexer lexer = new LuaLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         return new LuaParser(tokens);
+    }
+
+    public static void main(String... args) throws Exception
+    {
+        ANTLRInputStream input = new ANTLRInputStream(System.in);
+        LuaLexer lexer = new LuaLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        LuaParser parser = new LuaParser(tokens);
+        LuaParser.chunk_return chunk = parser.chunk();
+        int i = 0;
     }
 }

@@ -16,7 +16,11 @@
  */
 package net.sf.lua4j.engine.vm;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
+import net.sf.lua4j.engine.LuaObject;
 
 /**
  * @version $Revision: $ $Date: $
@@ -25,4 +29,22 @@ public class Frame
 {
     private final static String CLASS_NAME = Frame.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    private final LuaObject[] registers;
+    private final LuaObject[] constants;
+
+    public Frame(int numRegisters, int numConstants)
+    {
+        registers = new LuaObject[numRegisters];
+        constants = new LuaObject[numConstants];
+    }
+
+    public LuaObject[] getRegisters()
+    {
+        return registers;
+    }
+
+    public LuaObject[] getConstants()
+    {
+        return constants;
+    }
 }

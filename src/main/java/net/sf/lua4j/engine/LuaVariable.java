@@ -16,14 +16,25 @@
  */
 package net.sf.lua4j.engine;
 
-import java.util.logging.Logger;
-
-
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaVariable
+public class LuaVariable implements LuaObject
 {
-    private final static String CLASS_NAME = LuaVariable.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    private LuaObject value;
+
+    public LuaObject getValue()
+    {
+        return value;
+    }
+
+    public void setValue(LuaObject value)
+    {
+        this.value = value;
+    }
+
+    public Object getUnderlying()
+    {
+        return (value == null ? null : value.getUnderlying());
+    }
 }

@@ -16,14 +16,15 @@
  */
 package net.sf.lua4j.engine;
 
-import java.util.logging.Logger;
-
-
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaNil
+public class LuaNil implements LuaObject
 {
-    private final static String CLASS_NAME = LuaNil.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    public static final LuaObject NIL = new LuaNil();
+
+    public Object getUnderlying()
+    {
+        return null;
+    }
 }

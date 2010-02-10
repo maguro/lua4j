@@ -22,8 +22,7 @@ import java.util.logging.Logger;
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaObject
+public interface LuaObject
 {
-    private final static String CLASS_NAME = LuaObject.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    Object getUnderlying();
 }
