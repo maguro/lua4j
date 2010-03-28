@@ -1,5 +1,4 @@
 /**
- *
  * Copyright 2010 (C) The original author or authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine.vm;
-
-/**
- * @version $Revision: $ $Date: $
- */
-public interface Instruction
+tree grammar LuaWalker;
+options
 {
-    public static final byte HALT = 0x00;
+    tokenVocab=Lua; // reuse token types
+	ASTLabelType=CommonTree; // $label will have type CommonTree
 }
+
+decl
+	: ^(VARLIST NAME+) 
+	;

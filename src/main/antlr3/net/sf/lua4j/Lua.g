@@ -21,15 +21,19 @@ options
 }
 
 tokens {
-	EXPLIST;
-	NAMELIST;
-	PARAMETERS;
-	PAREN;
-	TABLEREF;
-	VARLIST;
+    ARGS;
+    ARGSWITHSELF;
+    EXPLIST;
+    FUNCALL;
+    NAMELIST;
+    PARAMETERS;
+    TBLCTOR;
+    TBLIDX;
+    TBLREF;
+    VARLIST;
 }
 
-@header 
+@header
 {
 package net.sf.lua4j;
 }
@@ -88,7 +92,7 @@ block
 
 stat
     : varlist '='^ explist
-	| functioncall
+    | functioncall
     | 'do' block 'end'
     | 'while' exp 'do' block 'end'
 	| 'repeat' block 'until' exp
@@ -132,7 +136,7 @@ explist
     ;
 
 exp
-	: ('nil' | 'false' | 'true'
+    : ('nil' | 'false' | 'true'
 	    | number
 	    | string
 	    | function
@@ -160,20 +164,21 @@ prefixexp
     ;
 
 functioncall
-    : varOrExp nameAndArgs+
+    : varOrExp nameAndArgs+ -> ^(FUNCALL varOrExp nameAndArgs+)
     ;
 
-varOrExp 
+varOrExp
 	: var
-	| '(' exp ')' -> ^(PAREN exp)
+	| '(' exp ')' -> exp
 	;
 
 nameAndArgs
-	: (':' NAME)? args
-	;	
+	: args -> ^(ARGS args)
+	| ':' NAME args -> ^(ARGSWITHSELF NAME args)
+	;
 
 args
-    : '(' explist? ')'
+    : '(' explist? ')' -> explist
 	| tableconstructor
 	| string
     ;
@@ -193,11 +198,11 @@ parlist
     ;
 
 tableconstructor
-    : '{' fieldlist? '}'
+    : '{' fieldlist? '}' -> ^(TBLCTOR fieldlist)
     ;
 
 fieldlist
-    : field (fieldsep field)* fieldsep?
+    : field (fieldsep! field)* fieldsep!?
     ;
 
 field
@@ -258,7 +263,7 @@ EXPONENT
     : (INTEGER | FLOAT) ('e' | 'E') '-'? INTEGER
     ;
 
-HEX	
+HEX
     : '0x' ('0'..'9' | 'a'..'f')+
     ;
 
@@ -274,7 +279,7 @@ string
     ;
 
 NORMAL_STRING
-    :  '"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"' 
+    :  '"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"'
     ;
 
 CHAR_STRING
@@ -305,8 +310,8 @@ UNICODE_ESCAPE
     ;
 
 fragment
-HEX_DIGIT 
-	: ('0'..'9' | 'a'..'f' | 'A'..'F') 
+HEX_DIGIT
+	: ('0'..'9' | 'a'..'f' | 'A'..'F')
 	;
 
 LONG_COMMENT
@@ -322,11 +327,11 @@ LONG_BRACKET
 LINE_COMMENT
 	: '--' ~('\n' | '\r')* '\r'? '\n' { skip(); }
 	;
-        
-WS  
+
+WS
 	:  (' ' | '\t' | '\u000C') { skip(); }
     ;
-    
-NEWLINE	
+
+NEWLINE
 	: ('\r')? '\n' { skip(); }
 	;

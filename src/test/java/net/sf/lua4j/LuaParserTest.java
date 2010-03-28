@@ -23,6 +23,8 @@ import java.io.IOException;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RuleReturnScope;
+import org.antlr.runtime.tree.CommonTree;
 import org.junit.Test;
 
 
@@ -35,32 +37,45 @@ public class LuaParserTest
     public void test() throws Exception
     {
         LuaParser.namelist_return list = getParser("abc").namelist();
-        list = getParser("abc,def").namelist();
-        list = getParser("abc,  def").namelist();
-        list = getParser("abc --[=[ roo ]=], def-- simple comment\n").namelist();
+        print(list = getParser("abc,def").namelist());
+        print(list = getParser("abc,  def").namelist());
+        print(list = getParser("abc --[=[ roo ]=], def-- simple comment\n").namelist());
 
-        LuaParser.string_return sting = getParser("[===[\nte]==]s]====]t]===]").string();
+        LuaParser.string_return sting = print(getParser("[===[\nte]==]s]====]t]===]").string());
 
-        LuaParser.number_return number = getParser("3").number();
-        number = getParser("3.0").number();
-        number = getParser("3.1416").number();
-        number = getParser("314.16e-2").number();
-        number = getParser("0.31416E1").number();
-        number = getParser("0xff").number();
-        number = getParser("0x56").number();
+        LuaParser.number_return number = print(getParser("3").number());
+        print(number = getParser("3.0").number());
+        print(number = getParser("3.1416").number());
+        print(number = getParser("314.16e-2").number());
+        print(number = getParser("0.31416E1").number());
+        print(number = getParser("0xff").number());
+        print(number = getParser("0x56").number());
 
-        LuaParser.stat_return stat = getParser("i, a[i] = i+1, 20").stat();
+        LuaParser.stat_return stat = print(getParser("i, a[i] = i+1, 20").stat());
 
-        LuaParser.exp_return exp = getParser("i+1").exp();
-        exp = getParser("-i+1").exp();
-        exp = getParser("(-i)+1").exp();
-        exp = getParser("-(i+1)").exp();
+        LuaParser.exp_return exp = print(getParser("i+1").exp());
+        exp = print(getParser("-i+1").exp());
+        print(exp = getParser("(-i)+1").exp());
+        print(exp = getParser("-(i+1)").exp());
 
-        LuaParser.chunk_return chunk = getParser("x = -i+1").chunk();
-        chunk = getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk();
+        LuaParser.chunk_return chunk = print(getParser("x = -i+1").chunk());
+        print(chunk = getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk());
+        print(chunk = getParser("abc --[=[ roo ]=], dog= def,cat-- simple comment\n").chunk());
 
-        chunk = getParser("a = 1 b = 2").chunk();
-        chunk = getParser("a = 1 b =\n2").chunk();
+        print(chunk = getParser("a = 1 b = 2").chunk());
+        print(chunk = getParser("a, b = b, a b = 2").chunk());
+        print(chunk = getParser("a = 1 b =\n2").chunk());
+        print(chunk = getParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
+        print(chunk = getParser("i, a:foo{1,2,3}[i] = i+1, 20").chunk());
+        print(chunk = getParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20").chunk());
+    }
+
+    private <T extends RuleReturnScope> T print(T scope)
+    {
+        CommonTree t = (CommonTree)scope.getTree();
+        System.out.println(t.toStringTree());
+
+        return scope;
     }
 
     private LuaParser getParser(String src) throws IOException
