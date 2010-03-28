@@ -1,0 +1,7 @@
+# intellij project files
+*.ipr
+*.iml
+*.iws
+# all target dirs
+target/
+output/
