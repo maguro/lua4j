@@ -16,10 +16,32 @@
 tree grammar LuaWalker;
 options
 {
-    tokenVocab=Lua; // reuse token types
-	ASTLabelType=CommonTree; // $label will have type CommonTree
+    tokenVocab=Lua;
+    ASTLabelType=CommonTree;
+    filter = true;
+}
+@header
+{
+package net.sf.lua4j;
+}
+@members
+{ 
+    void print(String s) { System.out.print(s); }
+    void println(String s) { System.out.println(s); }
 }
 
-decl
-	: ^(VARLIST NAME+) 
+topdown : enterBlock | enterStatement ;
+bottomup : exitBlock ;
+
+enterBlock
+	: BLOCK { println("enter"); }
+	;
+
+exitBlock
+	: BLOCK { println("exit"); }
+	;
+
+
+enterStatement
+	: STATEMENT { println("statement"); }
 	;

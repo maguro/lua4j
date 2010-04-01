@@ -23,14 +23,30 @@ options
 tokens {
     ARGS;
     ARGSWITHSELF;
+    BLOCK;
+    BREAK;
+    ELSEIF;
     EXPLIST;
+    FOR;
+    FORIN;
+    FNAME;
+    FNAMETHIS;
     FUNCALL;
+    FUNCTION;
+    IF;
+    LOCAL;
     NAMELIST;
     PARAMETERS;
+    PATH;
+    REPEAT;
+    RETURN;
+    STATEMENT;
     TBLCTOR;
     TBLIDX;
     TBLREF;
+    VAR;
     VARLIST;
+    WHILE;
 }
 
 @header
@@ -60,57 +76,69 @@ package net.sf.lua4j;
 {
 protected boolean isLongBracketOpen(int length)
 {
-	if (input.LA(1) != ']') return true;
+    if (input.LA(1) != ']') return true;
 
-	for (int i = 0; i != length; ++i)
-	{
-		if (input.LA(i + 2) != '=') return true;
-	}
+    for (int i = 0; i != length; ++i)
+    {
+        if (input.LA(i + 2) != '=') return true;
+    }
 
-	return (input.LA(length + 2) != ']');
+    return (input.LA(length + 2) != ']');
 }
 
 protected void matchLongBracketClose(int length) throws MismatchedTokenException
 {
-	StringBuilder builder = new StringBuilder();
+    StringBuilder builder = new StringBuilder();
 
-	builder.append(']');
-	for (int i = 0; i != length; ++i) builder.append('=');
-	builder.append(']');
+    builder.append(']');
+    for (int i = 0; i != length; ++i) builder.append('=');
+    builder.append(']');
 
-	match(builder.toString());
+    match(builder.toString());
 }
 }
 
 chunk
-    : (stat ';'?)* (laststat ';'?)?
+    : (stat ';'? -> ^(STATEMENT stat))* (laststat ';'?-> ^(STATEMENT laststat))?
     ;
 
 block
-    : chunk
+    : chunk -> ^(BLOCK chunk)
     ;
 
 stat
     : varlist '='^ explist
     | functioncall
-    | 'do' block 'end'
-    | 'while' exp 'do' block 'end'
-	| 'repeat' block 'until' exp
-	| 'if' exp 'then' block ('elseif' exp 'then' block)* ('else' block)? 'end'
-	| 'for' NAME '=' exp ',' exp (',' exp)? 'do' block 'end'
-	| 'for' namelist 'in' explist 'do' block 'end'
-	| 'function' funcname funcbody
-	| 'local' namelist ('=' explist)?
-	| 'local' 'function' NAME funcbody
-	;
+    | 'do' block 'end' -> block
+    | 'while' exp 'do' block 'end' -> ^(WHILE exp block)
+    | 'repeat' block 'until' exp -> ^(REPEAT block exp)
+    | 'if' exp 'then' ifblock=block 'end' -> ^(IF exp block)
+    | 'if' exp 'then' ifblock=block 'else' elseblock=block 'end' -> ^(IF exp $ifblock $elseblock)
+    | 'if' exp 'then' ifblock=block elseif+ 'end' -> ^(IF exp $ifblock elseif+)
+    | 'if' exp 'then' ifblock=block elseif+ 'else' elseblock=block 'end' -> ^(IF exp $ifblock elseif+ $elseblock)
+    | 'for' NAME '=' exp1=exp ',' exp2=exp 'do' block 'end' -> ^(FOR NAME $exp1 $exp2 block)
+    | 'for' NAME '=' exp1=exp ',' exp2=exp ',' exp3=exp 'do' block 'end' -> ^(FOR NAME $exp1 $exp2 $exp3 block)
+    | 'for' namelist 'in' explist 'do' block 'end' -> ^(FORIN namelist explist block)
+    | 'function' funcname funcbody -> ^(FUNCTION funcname funcbody)
+    | 'local' namelist ('=' explist)? -> ^(LOCAL namelist explist?)
+    | 'local' 'function' NAME funcbody
+    ;
+
+elseif
+    : ('elseif' exp 'then' block)+ -> ^(ELSEIF exp block)+
+    ;
 
 laststat
-	: 'return' explist?
-	| 'break'
+    : 'return' -> ^(RETURN)
+    | 'return' explist -> ^(RETURN explist)
+    | 'break' -> BREAK
     ;
 
 funcname
-    : NAME ('.' NAME)* (':' NAME)?
+@init{boolean hasThis = false;}
+    : f=NAME ('.' p+=NAME)* (':' t=NAME {hasThis = true;})?
+        -> {hasThis}? ^(FNAMETHIS $f $p* $t)
+        -> ^(FNAME $f $p*)
     ;
 
 varlist
@@ -118,14 +146,14 @@ varlist
     ;
 
 var
-    : NAME varEnd*
-    | '(' exp ')' varEnd+
+    : NAME varEnd* -> ^(VAR NAME varEnd*)
+    | '(' exp ')' varEnd+ -> ^(VAR '(' exp ')' varEnd+)
     ;
 
 varEnd
-	: nameAndArgs* '[' exp ']'
-	| nameAndArgs* '.' NAME
-	;
+    : nameAndArgs* '[' exp ']'
+    | nameAndArgs* '.' NAME
+    ;
 
 namelist
     : NAME (',' NAME)* -> ^(NAMELIST NAME+)
@@ -137,27 +165,27 @@ explist
 
 exp
     : ('nil' | 'false' | 'true'
-	    | number
-	    | string
-	    | function
+        | number
+        | string
+        | function
         | prefixexp
-	    | tableconstructor
-	    | '...'
-	    | unopExp
-	  )
-	  (binop^ exp)*
-	;
+        | tableconstructor
+        | '...'
+        | unopExp
+    )
+    (binop^ exp)*
+    ;
 
 unopExp
-	: unop^ ('nil' | 'false' | 'true'
-	    | number
-	    | string
-	    | function
+    : unop^ ('nil' | 'false' | 'true'
+        | number
+        | string
+        | function
         | prefixexp
-	    | tableconstructor
-	    | '...'
-	  )
-	;
+        | tableconstructor
+        | '...'
+    )
+    ;
 
 prefixexp
     : varOrExp nameAndArgs*
@@ -168,24 +196,24 @@ functioncall
     ;
 
 varOrExp
-	: var
-	| '(' exp ')' -> exp
-	;
+    : var
+    | '(' exp ')' -> exp
+    ;
 
 nameAndArgs
-	: args -> ^(ARGS args)
-	| ':' NAME args -> ^(ARGSWITHSELF NAME args)
-	;
+    : args -> ^(ARGS args)
+    | ':' NAME args -> ^(ARGSWITHSELF NAME args)
+    ;
 
 args
     : '(' explist? ')' -> explist
-	| tableconstructor
-	| string
+    | tableconstructor
+    | string
     ;
 
 function
     : 'function' funcbody
-	;
+    ;
 
 funcbody
     : '(' parlist+ ')' block 'end'

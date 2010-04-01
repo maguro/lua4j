@@ -68,6 +68,10 @@ public class LuaParserTest
         print(chunk = getParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
         print(chunk = getParser("i, a:foo{1,2,3}[i] = i+1, 20").chunk());
         print(chunk = getParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20").chunk());
+        print(getParser("foo or bar").exp());
+        print(getParser("if foo or bar then a = 1 elseif car then a = 2 elseif cdr then a = 3 else a = 4 end").chunk());
+
+        print(getParser("foo.b.c.d:e").funcname());
     }
 
     private <T extends RuleReturnScope> T print(T scope)
@@ -92,15 +96,5 @@ public class LuaParserTest
         LuaLexer lexer = new LuaLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         return new LuaParser(tokens);
-    }
-
-    public static void main(String... args) throws Exception
-    {
-        ANTLRInputStream input = new ANTLRInputStream(System.in);
-        LuaLexer lexer = new LuaLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        LuaParser parser = new LuaParser(tokens);
-        LuaParser.chunk_return chunk = parser.chunk();
-        int i = 0;
     }
 }

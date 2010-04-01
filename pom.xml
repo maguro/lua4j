@@ -76,6 +76,14 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <!--
+                      Comma separated list of grammar files or pattern grammar files
+                      By default, grammar file(s) is in ${basedir}/src/main/antlr
+                    -->
+                    <grammars>*.g</grammars>
+                    <!-- <grammars>*.g</grammars> -->
+                </configuration>
             </plugin>
         </plugins>
     </build>
