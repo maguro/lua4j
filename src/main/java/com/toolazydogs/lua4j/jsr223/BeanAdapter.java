@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.jsr223;
+package com.toolazydogs.lua4j.jsr223;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,9 +34,9 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.lua4j.engine.LuaNil;
-import net.sf.lua4j.engine.LuaObject;
-import net.sf.lua4j.engine.LuaTable;
+import com.toolazydogs.lua4j.engine.LuaNil;
+import com.toolazydogs.lua4j.engine.LuaObject;
+import com.toolazydogs.lua4j.engine.LuaTable;
 
 
 /**

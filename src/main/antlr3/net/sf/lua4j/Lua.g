@@ -55,7 +55,7 @@ tokens {
 
 @header
 {
-package net.sf.lua4j;
+package com.toolazydogs.lua4j;
 }
 @lexer::header
 {
@@ -74,7 +74,7 @@ package net.sf.lua4j;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j;
+package com.toolazydogs.lua4j;
 }
 @lexer::members
 {

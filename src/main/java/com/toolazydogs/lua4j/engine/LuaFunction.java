@@ -14,38 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
+package com.toolazydogs.lua4j.engine;
 
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import java.util.logging.Logger;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaCompiledScript extends CompiledScript
+public class LuaFunction implements LuaObject
 {
-    private final static String CLASS_NAME = LuaCompiledScript.class.getName();
+    private final static String CLASS_NAME = LuaFunction.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
-    private final ScriptEngine scriptEngine;
 
-    public LuaCompiledScript(ScriptEngine scriptEngine)
+    public Object getUnderlying()
     {
-        this.scriptEngine = scriptEngine;
-    }
-
-    @Override
-    public Object eval(ScriptContext scriptContext) throws ScriptException
-    {
-        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public ScriptEngine getEngine()
-    {
-        return scriptEngine;
+        throw new UnsupportedOperationException("Lua function has no underlying object");
     }
 }

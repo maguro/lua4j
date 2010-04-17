@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
+package com.toolazydogs.lua4j.engine;
 
 import java.util.logging.Logger;
 
@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 /**
  * @version $Revision: $ $Date: $
  */
-public interface LuaObject
+public class LuaChunk
 {
-    Object getUnderlying();
+    private final static String CLASS_NAME = LuaChunk.class.getName();
+    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
 }

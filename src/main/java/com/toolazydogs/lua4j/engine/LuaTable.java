@@ -14,27 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
+package com.toolazydogs.lua4j.engine;
+
+import java.util.Map;
+
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaVariable implements LuaObject
+public interface LuaTable extends LuaObject, Map<String, LuaObject>
 {
-    private LuaObject value;
 
-    public LuaObject getValue()
-    {
-        return value;
-    }
-
-    public void setValue(LuaObject value)
-    {
-        this.value = value;
-    }
-
-    public Object getUnderlying()
-    {
-        return (value == null ? null : value.getUnderlying());
-    }
 }

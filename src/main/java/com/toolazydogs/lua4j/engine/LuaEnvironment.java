@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
+package com.toolazydogs.lua4j.engine;
 
 import java.util.logging.Logger;
 
@@ -22,13 +22,8 @@ import java.util.logging.Logger;
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaFunction implements LuaObject
+public class LuaEnvironment
 {
-    private final static String CLASS_NAME = LuaFunction.class.getName();
+    private final static String CLASS_NAME = LuaEnvironment.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
-
-    public Object getUnderlying()
-    {
-        throw new UnsupportedOperationException("Lua function has no underlying object");
-    }
 }

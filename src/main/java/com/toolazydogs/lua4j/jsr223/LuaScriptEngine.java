@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.jsr223;
+package com.toolazydogs.lua4j.jsr223;
 
 import javax.script.Bindings;
 import javax.script.Compilable;

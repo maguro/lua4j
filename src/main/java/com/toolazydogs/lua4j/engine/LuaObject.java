@@ -14,16 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
-
-import java.util.logging.Logger;
+package com.toolazydogs.lua4j.engine;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaEnvironment
+public interface LuaObject
 {
-    private final static String CLASS_NAME = LuaEnvironment.class.getName();
-    private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    Object getUnderlying();
 }

@@ -14,16 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.engine;
+package com.toolazydogs.lua4j.engine;
 
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import java.util.logging.Logger;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaChunk
+public class LuaCompiledScript extends CompiledScript
 {
-    private final static String CLASS_NAME = LuaChunk.class.getName();
+    private final static String CLASS_NAME = LuaCompiledScript.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
+    private final ScriptEngine scriptEngine;
+
+    public LuaCompiledScript(ScriptEngine scriptEngine)
+    {
+        this.scriptEngine = scriptEngine;
+    }
+
+    @Override
+    public Object eval(ScriptContext scriptContext) throws ScriptException
+    {
+        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ScriptEngine getEngine()
+    {
+        return scriptEngine;
+    }
 }

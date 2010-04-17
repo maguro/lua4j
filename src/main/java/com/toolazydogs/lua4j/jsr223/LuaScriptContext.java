@@ -14,79 +14,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.jsr223;
+package com.toolazydogs.lua4j.jsr223;
 
 import javax.script.Bindings;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import javax.script.ScriptContext;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.List;
 import java.util.logging.Logger;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
-public class LuaBindings implements Bindings
+public class LuaScriptContext implements ScriptContext
 {
-    private final static String CLASS_NAME = LuaBindings.class.getName();
+    private final static String CLASS_NAME = LuaScriptContext.class.getName();
     private final static Logger LOGGER = Logger.getLogger(CLASS_NAME);
 
-    public Object put(String s, Object o)
-    {
-        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void putAll(Map<? extends String, ? extends Object> map)
+    public void setBindings(Bindings bindings, int i)
     {
         //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void clear()
+    public Bindings getBindings(int i)
+    {
+        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setAttribute(String s, Object o, int i)
     {
         //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Set<String> keySet()
+    public Object getAttribute(String s, int i)
     {
         return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Collection<Object> values()
+    public Object removeAttribute(String s, int i)
     {
         return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Set<Entry<String, Object>> entrySet()
+    public Object getAttribute(String s)
     {
         return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public int size()
+    public int getAttributesScope(String s)
     {
         return 0;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public boolean isEmpty()
-    {
-        return false;  //Todo change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public boolean containsKey(Object o)
-    {
-        return false;  //Todo change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public boolean containsValue(Object o)
-    {
-        return false;  //Todo change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Object get(Object o)
+    public Writer getWriter()
     {
         return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object remove(Object o)
+    public Writer getErrorWriter()
+    {
+        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setWriter(Writer writer)
+    {
+        //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setErrorWriter(Writer writer)
+    {
+        //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Reader getReader()
+    {
+        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setReader(Reader reader)
+    {
+        //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public List<Integer> getScopes()
     {
         return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }

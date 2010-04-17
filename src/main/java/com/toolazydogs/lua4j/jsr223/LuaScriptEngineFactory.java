@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.lua4j.jsr223;
+package com.toolazydogs.lua4j.jsr223;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -115,7 +115,7 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory
 
     public String getEngineVersion()
     {
-        return properties.getProperty("net.sf.lua4j.version");
+        return properties.getProperty("net.toolazydogs.lua4j.version");
     }
 
     public List<String> getExtensions()

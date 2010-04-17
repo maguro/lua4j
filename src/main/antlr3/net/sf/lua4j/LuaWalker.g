@@ -22,7 +22,7 @@ options
 }
 @header
 {
-package net.sf.lua4j;
+package com.toolazydogs.lua4j;
 }
 @members
 { 
