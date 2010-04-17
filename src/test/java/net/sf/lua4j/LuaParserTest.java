@@ -21,38 +21,66 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import static com.toolazydogs.aunit.Assert.assertToken;
+import static com.toolazydogs.aunit.Assert.assertTree;
+import static com.toolazydogs.aunit.CoreOptions.lexer;
+import static com.toolazydogs.aunit.CoreOptions.options;
+import static com.toolazydogs.aunit.CoreOptions.parser;
+import static com.toolazydogs.aunit.Work.parse;
+import static com.toolazydogs.aunit.Work.scan;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.toolazydogs.aunit.AntlrTestRunner;
+import com.toolazydogs.aunit.Configuration;
+import com.toolazydogs.aunit.Option;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
+@RunWith(AntlrTestRunner.class)
 public class LuaParserTest
 {
+    @Configuration
+    public static Option[] configure()
+    {
+        return options(
+                lexer(LuaLexer.class).failOnError(),
+                parser(LuaParser.class).failOnError()
+        );
+    }
+
     @Test
     public void test() throws Exception
     {
-        LuaParser.namelist_return list = getParser("abc").namelist();
-        print(list = getParser("abc,def").namelist());
-        print(list = getParser("abc,  def").namelist());
-        print(list = getParser("abc --[=[ roo ]=], def-- simple comment\n").namelist());
+        assertToken(LuaLexer.NAME, "abc", scan("abc"));
 
-        LuaParser.string_return sting = print(getParser("[===[\nte]==]s]====]t]===]").string());
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", "namelist"));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", "namelist"));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", "namelist"));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", "namelist"));
 
-        LuaParser.number_return number = print(getParser("3").number());
-        print(number = getParser("3.0").number());
-        print(number = getParser("3.1416").number());
-        print(number = getParser("314.16e-2").number());
-        print(number = getParser("0.31416E1").number());
-        print(number = getParser("0xff").number());
-        print(number = getParser("0x56").number());
+        assertTree(LuaParser.STRING, "(STRING '[===[\nte]==]s]====]t]===]')", parse("[===[\nte]==]s]====]t]===]", "string"));
 
-        LuaParser.stat_return stat = print(getParser("i, a[i] = i+1, 20").stat());
+        assertTree(LuaParser.INTEGER, "3", parse("3", "number"));
+        assertTree(LuaParser.FLOAT, "3.0", parse("3.0", "number"));
+        assertTree(LuaParser.FLOAT, "3.1416", parse("3.1416", "number"));
+        assertTree(LuaParser.EXPONENT, "314.16e-2", parse("314.16e-2", "number"));
+        assertTree(LuaParser.EXPONENT, "0.31416E1", parse("0.31416E1", "number"));
+        assertTree(LuaParser.HEX, "0xff", parse("0xff", "number"));
+        assertTree(LuaParser.HEX, "0x56", parse("0x56", "number"));
 
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i) (VAR a (DEREF (VAR i)))) (EXPLIST (+ (VAR i) 1) 20))", parse("i, a[i] = i+1, 20", "stat"));
+    }
+
+    @Test
+    public void testOld() throws Exception
+    {
         LuaParser.exp_return exp = print(getParser("i+1").exp());
         exp = print(getParser("-i+1").exp());
         print(exp = getParser("(-i)+1").exp());
@@ -71,7 +99,7 @@ public class LuaParserTest
         print(getParser("foo or bar").exp());
         print(getParser("if foo or bar then a = 1 elseif car then a = 2 elseif cdr then a = 3 else a = 4 end").chunk());
 
-        print(getParser("foo.b.c.d:e").funcname());
+        print(getParser("#@foo.b.c.d:e").funcname());
     }
 
     private <T extends RuleReturnScope> T print(T scope)

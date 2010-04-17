@@ -23,10 +23,12 @@ options
 tokens {
     ARGS;
     ARGSWITHSELF;
+    ASSIGN;
     BLOCK;
     BREAK;
     ELSEIF;
     EXPLIST;
+    DEREF;
     FOR;
     FORIN;
     FNAME;
@@ -36,11 +38,13 @@ tokens {
     IF;
     LOCAL;
     NAMELIST;
+    NUMBER;
     PARAMETERS;
     PATH;
     REPEAT;
     RETURN;
     STATEMENT;
+    STRING;
     TBLCTOR;
     TBLIDX;
     TBLREF;
@@ -107,7 +111,7 @@ block
     ;
 
 stat
-    : varlist '='^ explist
+    : varlist '=' explist -> ^(ASSIGN varlist explist)
     | functioncall
     | 'do' block 'end' -> block
     | 'while' exp 'do' block 'end' -> ^(WHILE exp block)
@@ -151,8 +155,8 @@ var
     ;
 
 varEnd
-    : nameAndArgs* '[' exp ']'
-    | nameAndArgs* '.' NAME
+    : nameAndArgs* '[' exp ']' -> ^(DEREF nameAndArgs* exp)
+    | nameAndArgs* '.' NAME -> ^(DEREF nameAndArgs* NAME)
     ;
 
 namelist
@@ -301,9 +305,9 @@ DIGIT
 	;
 
 string
-    : NORMAL_STRING
-    | CHAR_STRING
-    | LONG_STRING
+    : s=NORMAL_STRING -> ^(STRING $s)
+    | s=CHAR_STRING -> ^(STRING $s)
+    | s=LONG_STRING -> ^(STRING $s)
     ;
 
 NORMAL_STRING
