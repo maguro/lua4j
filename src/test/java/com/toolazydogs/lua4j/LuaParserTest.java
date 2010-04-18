@@ -21,11 +21,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.toolazydogs.aunit.AntlrTestRunner;
 import static com.toolazydogs.aunit.Assert.assertToken;
 import static com.toolazydogs.aunit.Assert.assertTree;
+import com.toolazydogs.aunit.Configuration;
 import static com.toolazydogs.aunit.CoreOptions.lexer;
 import static com.toolazydogs.aunit.CoreOptions.options;
 import static com.toolazydogs.aunit.CoreOptions.parser;
+import com.toolazydogs.aunit.Option;
 import static com.toolazydogs.aunit.Work.parse;
 import static com.toolazydogs.aunit.Work.scan;
 import org.antlr.runtime.ANTLRInputStream;
@@ -34,10 +37,6 @@ import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.toolazydogs.aunit.AntlrTestRunner;
-import com.toolazydogs.aunit.Configuration;
-import com.toolazydogs.aunit.Option;
 
 
 /**
