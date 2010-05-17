@@ -168,22 +168,38 @@ explist
     ;
 
 exp
-    : ('nil'
-        | 'false'
-        | 'true'
-        | number
-        | string
-        | function
-        | prefixexp
-        | tableconstructor
-        | '...'
-        | unopExp
-    )
-    (binop^ exp)*
+    : or ('or'^ or)*
     ;
 
-unopExp
-    : unop^ ('nil'
+or
+    : and ('and' and)+ -> ^('and' and+)
+    | and
+    ;
+
+and
+    : compare (compare_op^ compare)*
+    ;
+
+compare
+    : concatenation ('..'^ concatenation)*
+    ;
+
+concatenation
+    : add_sub (add_sub_op^ add_sub)*
+    ;
+	
+add_sub
+    : b (b_op^ b)*
+    ;
+
+b
+    : unary_op^ unary
+    | unary
+    ;
+
+unary : atom ('^'^ atom)* ;
+
+atom 	: 'nil'
         | 'false'
         | 'true'
         | number
@@ -192,8 +208,22 @@ unopExp
         | prefixexp
         | tableconstructor
         | '...'
-    )
+	;
+
+unary_op : 'not' | '#' | '-' ;	
+
+b_op : '*' | '/' | '%' ;
+	 		
+compare_op
+    : '<'
+    | '<='
+    | '>'
+    | '>='
+    | '=='
+    | '~='
     ;
+	
+add_sub_op : '+' | '-' ;
 
 prefixexp
     : varOrExp nameAndArgs*

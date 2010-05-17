@@ -79,9 +79,34 @@ public class LuaParserTest
 
         assertTree(LuaParser.FNAMETHIS, "(FNAMETHIS foo b c d e)", parse("@foo.b.c.d:e", rule("funcname")));
 
-        print(getParser("(step > 0 and var <= limit)").exp());
+        print(getParser("do\n" +
+                         "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                         "       if not (var and limit and step) then error() end\n" +
+                         "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                         "         local v = var\n" +
+                         "         print(v)\n" +
+                         "         var = var + step\n" +
+                         "       end\n" +
+                         "     end").chunk());
 
-        assertTree(LuaParser.STATEMENTS, "(STATEMENTS (BLOCK (STATEMENTS (LOCAL (NAMELIST var limit step) (EXPLIST (VAR tonumber) (ARGS (EXPLIST (VAR e1))) (VAR tonumber) (ARGS (EXPLIST (VAR e2))) (VAR tonumber) (ARGS (EXPLIST (VAR e3))))) (IF (not (and (VAR var) (and (VAR limit) (VAR step)))) (BLOCK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST))))) (WHILE (or (> (VAR step) (and 0 (<= (VAR var) (VAR limit)))) (<= (VAR step) (and 0 (>= (VAR var) (VAR limit))))) (BLOCK (STATEMENTS (LOCAL (NAMELIST v) (EXPLIST (VAR var))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step))))))))))",
+        assertTree(LuaParser.STATEMENTS, "(STATEMENTS \n" +
+                                         "  (BLOCK \n" +
+                                         "    (STATEMENTS \n" +
+                                         "      (LOCAL (NAMELIST var limit step) \n" +
+                                         "           (EXPLIST (VAR tonumber) \n" +
+                                         "              (ARGS (EXPLIST (VAR e1))) \n" +
+                                         "              (VAR tonumber) \n" +
+                                         "              (ARGS (EXPLIST (VAR e2))) \n" +
+                                         "              (VAR tonumber) \n" +
+                                         "              (ARGS (EXPLIST (VAR e3))))) \n" +
+                                         "      (IF (not (and (VAR var) (VAR limit) (VAR step))) \n" +
+                                         "        (BLOCK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST))))) \n" +
+                                         "      (WHILE (or (and (> (VAR step) 0) (<= (VAR var) (VAR limit))) (and (<= (VAR step) 0) (>= (VAR var) (VAR limit)))) \n" +
+                                         "        (BLOCK \n" +
+                                         "          (STATEMENTS \n" +
+                                         "            (LOCAL (NAMELIST v) (EXPLIST (VAR var))) \n" +
+                                         "            (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) \n" +
+                                         "            (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step))))))))))",
                    parse("do\n" +
                          "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
                          "       if not (var and limit and step) then error() end\n" +
@@ -93,8 +118,7 @@ public class LuaParserTest
                          "     end", rule("chunk")));
     }
 
-//    @Test
-
+    @Test
     public void testOld() throws Exception
     {
         print(getParser("i+1").exp());
@@ -115,7 +139,7 @@ public class LuaParserTest
         print(getParser("foo or bar").exp());
         print(getParser("if foo or bar then a = 1 elseif car then a = 2 elseif cdr then a = 3 else a = 4 end").chunk());
 
-//        print(getParser("#@foo.b.c.d:e").funcname());
+        print(getParser("foo.b.c.d:e").funcname());
     }
 
     private static <T extends RuleReturnScope> T print(T scope)
