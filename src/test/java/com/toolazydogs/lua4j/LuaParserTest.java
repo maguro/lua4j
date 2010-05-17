@@ -30,6 +30,7 @@ import static com.toolazydogs.aunit.CoreOptions.options;
 import static com.toolazydogs.aunit.CoreOptions.parser;
 import com.toolazydogs.aunit.Option;
 import static com.toolazydogs.aunit.Work.parse;
+import static com.toolazydogs.aunit.Work.rule;
 import static com.toolazydogs.aunit.Work.scan;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -49,8 +50,8 @@ public class LuaParserTest
     public static Option[] configure()
     {
         return options(
-                lexer(LuaLexer.class).failOnError(),
-                parser(LuaParser.class).failOnError()
+                lexer(LuaLexer.class),
+                parser(LuaParser.class)
         );
     }
 
@@ -59,51 +60,67 @@ public class LuaParserTest
     {
         assertToken(LuaLexer.NAME, "abc", scan("abc"));
 
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", "namelist"));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", "namelist"));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", "namelist"));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", "namelist"));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", rule("namelist")));
 
-        assertTree(LuaParser.STRING, "(STRING '[===[\nte]==]s]====]t]===]')", parse("[===[\nte]==]s]====]t]===]", "string"));
+        assertTree(LuaParser.STRING, "(STRING '[===[\nte]==]s]====]t]===]')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
 
-        assertTree(LuaParser.INTEGER, "3", parse("3", "number"));
-        assertTree(LuaParser.FLOAT, "3.0", parse("3.0", "number"));
-        assertTree(LuaParser.FLOAT, "3.1416", parse("3.1416", "number"));
-        assertTree(LuaParser.EXPONENT, "314.16e-2", parse("314.16e-2", "number"));
-        assertTree(LuaParser.EXPONENT, "0.31416E1", parse("0.31416E1", "number"));
-        assertTree(LuaParser.HEX, "0xff", parse("0xff", "number"));
-        assertTree(LuaParser.HEX, "0x56", parse("0x56", "number"));
+        assertTree(LuaParser.INTEGER, "3", parse("3", rule("number")));
+        assertTree(LuaParser.FLOAT, "3.0", parse("3.0", rule("number")));
+        assertTree(LuaParser.FLOAT, "3.1416", parse("3.1416", rule("number")));
+        assertTree(LuaParser.EXPONENT, "314.16e-2", parse("314.16e-2", rule("number")));
+        assertTree(LuaParser.EXPONENT, "0.31416E1", parse("0.31416E1", rule("number")));
+        assertTree(LuaParser.HEX, "0xff", parse("0xff", rule("number")));
+        assertTree(LuaParser.HEX, "0x56", parse("0x56", rule("number")));
 
-        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i) (VAR a (DEREF (VAR i)))) (EXPLIST (+ (VAR i) 1) 20))", parse("i, a[i] = i+1, 20", "stat"));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i) (VAR a (DEREF (VAR i)))) (EXPLIST (+ (VAR i) 1) 20))", parse("i, a[i] = i+1, 20", rule("stat")));
+
+        assertTree(LuaParser.FNAMETHIS, "(FNAMETHIS foo b c d e)", parse("@foo.b.c.d:e", rule("funcname")));
+
+        print(getParser("(step > 0 and var <= limit)").exp());
+
+        assertTree(LuaParser.STATEMENTS, "(STATEMENTS (BLOCK (STATEMENTS (LOCAL (NAMELIST var limit step) (EXPLIST (VAR tonumber) (ARGS (EXPLIST (VAR e1))) (VAR tonumber) (ARGS (EXPLIST (VAR e2))) (VAR tonumber) (ARGS (EXPLIST (VAR e3))))) (IF (not (and (VAR var) (and (VAR limit) (VAR step)))) (BLOCK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST))))) (WHILE (or (> (VAR step) (and 0 (<= (VAR var) (VAR limit)))) (<= (VAR step) (and 0 (>= (VAR var) (VAR limit))))) (BLOCK (STATEMENTS (LOCAL (NAMELIST v) (EXPLIST (VAR var))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step))))))))))",
+                   parse("do\n" +
+                         "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                         "       if not (var and limit and step) then error() end\n" +
+                         "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                         "         local v = var\n" +
+                         "         print(v)\n" +
+                         "         var = var + step\n" +
+                         "       end\n" +
+                         "     end", rule("chunk")));
     }
 
-    @Test
+//    @Test
+
     public void testOld() throws Exception
     {
-        LuaParser.exp_return exp = print(getParser("i+1").exp());
-        exp = print(getParser("-i+1").exp());
-        print(exp = getParser("(-i)+1").exp());
-        print(exp = getParser("-(i+1)").exp());
+        print(getParser("i+1").exp());
+        print(getParser("-i+1").exp());
+        print(getParser("(-i)+1").exp());
+        print(getParser("-(i+1)").exp());
 
-        LuaParser.chunk_return chunk = print(getParser("x = -i+1").chunk());
-        print(chunk = getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk());
-        print(chunk = getParser("abc --[=[ roo ]=], dog= def,cat-- simple comment\n").chunk());
+        print(getParser("x = -i+1").chunk());
+        print(getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk());
+        print(getParser("abc --[=[ roo ]=], dog= def,cat-- simple comment\n").chunk());
 
-        print(chunk = getParser("a = 1 b = 2").chunk());
-        print(chunk = getParser("a, b = b, a b = 2").chunk());
-        print(chunk = getParser("a = 1 b =\n2").chunk());
-        print(chunk = getParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
-        print(chunk = getParser("i, a:foo{1,2,3}[i] = i+1, 20").chunk());
-        print(chunk = getParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20").chunk());
+        print(getParser("a = 1 b = 2").chunk());
+        print(getParser("a, b = b, a b = 2").chunk());
+        print(getParser("a = 1 b =\n2").chunk());
+        print(getParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
+        print(getParser("i, a:foo{1,2,3}[i] = i+1, 20").chunk());
+        print(getParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20").chunk());
         print(getParser("foo or bar").exp());
         print(getParser("if foo or bar then a = 1 elseif car then a = 2 elseif cdr then a = 3 else a = 4 end").chunk());
 
-        print(getParser("#@foo.b.c.d:e").funcname());
+//        print(getParser("#@foo.b.c.d:e").funcname());
     }
 
-    private <T extends RuleReturnScope> T print(T scope)
+    private static <T extends RuleReturnScope> T print(T scope)
     {
-        CommonTree t = (CommonTree)scope.getTree();
+        CommonTree t = (CommonTree) scope.getTree();
         System.out.println(t.toStringTree());
 
         return scope;

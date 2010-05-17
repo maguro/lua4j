@@ -43,7 +43,7 @@ tokens {
     PATH;
     REPEAT;
     RETURN;
-    STATEMENT;
+    STATEMENTS;
     STRING;
     TBLCTOR;
     TBLIDX;
@@ -103,7 +103,7 @@ protected void matchLongBracketClose(int length) throws MismatchedTokenException
 }
 
 chunk
-    : (stat ';'? -> ^(STATEMENT stat))* (laststat ';'?-> ^(STATEMENT laststat))?
+    : (stat ';'? -> ^(STATEMENTS stat+))* (laststat ';'?-> ^(STATEMENTS stat+ laststat))?
     ;
 
 block
@@ -116,7 +116,7 @@ stat
     | 'do' block 'end' -> block
     | 'while' exp 'do' block 'end' -> ^(WHILE exp block)
     | 'repeat' block 'until' exp -> ^(REPEAT block exp)
-    | 'if' exp 'then' ifblock=block 'end' -> ^(IF exp block)
+    | 'if' exp 'then' block 'end' -> ^(IF exp block)
     | 'if' exp 'then' ifblock=block 'else' elseblock=block 'end' -> ^(IF exp $ifblock $elseblock)
     | 'if' exp 'then' ifblock=block elseif+ 'end' -> ^(IF exp $ifblock elseif+)
     | 'if' exp 'then' ifblock=block elseif+ 'else' elseblock=block 'end' -> ^(IF exp $ifblock elseif+ $elseblock)
@@ -168,7 +168,9 @@ explist
     ;
 
 exp
-    : ('nil' | 'false' | 'true'
+    : ('nil'
+        | 'false'
+        | 'true'
         | number
         | string
         | function
@@ -181,7 +183,9 @@ exp
     ;
 
 unopExp
-    : unop^ ('nil' | 'false' | 'true'
+    : unop^ ('nil'
+        | 'false'
+        | 'true'
         | number
         | string
         | function
@@ -210,7 +214,8 @@ nameAndArgs
     ;
 
 args
-    : '(' explist? ')' -> explist
+    : '(' ')' -> ^(EXPLIST)
+    | '(' explist ')' -> explist
     | tableconstructor
     | string
     ;
