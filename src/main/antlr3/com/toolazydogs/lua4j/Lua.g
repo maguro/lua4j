@@ -260,7 +260,7 @@ parlist
     ;
 
 tableconstructor
-    : '{' fieldlist? '}' -> ^(TBLCTOR fieldlist)
+    : '{' fieldlist? '}' -> ^(TBLCTOR fieldlist?)
     ;
 
 fieldlist
