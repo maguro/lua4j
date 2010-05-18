@@ -120,8 +120,8 @@ stat
     | 'if' exp 'then' ifblock=block 'else' elseblock=block 'end' -> ^(IF exp $ifblock $elseblock)
     | 'if' exp 'then' ifblock=block elseif+ 'end' -> ^(IF exp $ifblock elseif+)
     | 'if' exp 'then' ifblock=block elseif+ 'else' elseblock=block 'end' -> ^(IF exp $ifblock elseif+ $elseblock)
-    | 'for' NAME '=' exp1=exp ',' exp2=exp 'do' block 'end' -> ^(FOR NAME $exp1 $exp2 block)
     | 'for' NAME '=' exp1=exp ',' exp2=exp ',' exp3=exp 'do' block 'end' -> ^(FOR NAME $exp1 $exp2 $exp3 block)
+    | 'for' NAME '=' exp1=exp ',' exp2=exp 'do' block 'end' -> ^(FOR NAME $exp1 $exp2 block)
     | 'for' namelist 'in' explist 'do' block 'end' -> ^(FORIN namelist explist block)
     | 'function' funcname funcbody -> ^(FUNCTION funcname funcbody)
     | 'local' namelist ('=' explist)? -> ^(LOCAL namelist explist?)
@@ -250,7 +250,7 @@ function
     ;
 
 funcbody
-    : '(' parlist+ ')' block 'end'
+    : '(' parlist? ')' block 'end'
 	;
 
 parlist

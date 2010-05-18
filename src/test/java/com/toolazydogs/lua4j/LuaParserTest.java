@@ -80,15 +80,35 @@ public class LuaParserTest
         assertTree(LuaParser.FNAMETHIS, "(FNAMETHIS foo b c d e)", parse("@foo.b.c.d:e", rule("funcname")));
 
         print(getParser("do\n" +
-                         "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
-                         "       if not (var and limit and step) then error() end\n" +
-                         "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
-                         "         local v = var\n" +
-                         "         print(v)\n" +
-                         "         var = var + step\n" +
-                         "       end\n" +
-                         "     end\n" +
-                         "i = i + 1").chunk());
+                        "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                        "       if not (var and limit and step) then error() end\n" +
+                        "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                        "         local v = var\n" +
+                        "         print(v)\n" +
+                        "         var = var + step\n" +
+                        "       end\n" +
+                        "     end\n" +
+                        "i = i + 1").chunk());
+
+        print(getParser("x = 10                -- global variable\n" +
+                        "do                    -- new block\n" +
+                        "  local x = x         -- new 'x', with value 10\n" +
+                        "  print(x)            --> 10\n" +
+                        "  x = x+1\n" +
+                        "  do                  -- another block\n" +
+                        "    local x = x+1     -- another 'x'\n" +
+                        "    print(x)          --> 12\n" +
+                        "  end\n" +
+                        "  print(x)            --> 11\n" +
+                        "end\n" +
+                        "print(x)              --> 10  (the global one)\n").chunk());
+
+        print(getParser("a = {}\n" +
+                        "local x = 20\n" +
+                        "for i=1,10 do\n" +
+                        "  local y = 0\n" +
+                        "  a[i] = function () y=y+1; return x+y end\n" +
+                        "end").chunk());
 
         assertTree(LuaParser.STATEMENTS, "(STATEMENTS \n" +
                                          "  (BLOCK \n" +
