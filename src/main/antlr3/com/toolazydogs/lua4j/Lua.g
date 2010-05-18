@@ -168,7 +168,8 @@ explist
     ;
 
 exp
-    : or ('or'^ or)*
+    : or ('or' or)+ -> ^('or' or+)
+    | or
     ;
 
 or
@@ -181,7 +182,8 @@ and
     ;
 
 compare
-    : concatenation ('..'^ concatenation)*
+    : concatenation ('..' concatenation)+ -> ^('..' concatenation+)
+    | concatenation
     ;
 
 concatenation
@@ -214,14 +216,7 @@ unary_op : 'not' | '#' | '-' ;
 
 b_op : '*' | '/' | '%' ;
 	 		
-compare_op
-    : '<'
-    | '<='
-    | '>'
-    | '>='
-    | '=='
-    | '~='
-    ;
+compare_op : '<' | '<=' | '>' | '>=' | '==' | '~=' ;
 	
 add_sub_op : '+' | '-' ;
 
@@ -335,9 +330,7 @@ HEX
     ;
 
 fragment
-DIGIT
-	: ('0'..'9')
-	;
+DIGIT : ('0'..'9') ;
 
 string
     : s=NORMAL_STRING -> ^(STRING $s)
@@ -346,59 +339,44 @@ string
     ;
 
 NORMAL_STRING
-    :  '"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"'
+    : '"' ( ESCAPE_SEQUENCE | ~('\\' | '"') )* '"'
     ;
 
 CHAR_STRING
-   :	'\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') )* '\''
-   ;
+    : '\'' ( ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
+    ;
 
 LONG_STRING
-	: LONG_BRACKET
+    : LONG_BRACKET
     ;
 
 fragment
 ESCAPE_SEQUENCE
-    :   '\\' ('b' | 't' | 'n' | 'f' | 'r' | '\"' | '\'' | '\\')
-    |   OCTAL_ESCAPE
-    |   UNICODE_ESCAPE
+    : '\\' ('a' | 'b' | 'f' | 'n' | 'r' | 't' | 'v' | '\"' | '\'' | '\\')
+    | ASCII_ESCAPE
     ;
 
 fragment
-OCTAL_ESCAPE
-    :   '\\' ('0'..'3') ('0'..'7') ('0'..'7')
-    |   '\\' ('0'..'7') ('0'..'7')
-    |   '\\' ('0'..'7')
+ASCII_ESCAPE
+    : '\\' ('0'..'9') ('0'..'9') ('0'..'9')
+    | '\\' ('0'..'9') ('0'..'9')
+    | '\\' ('0'..'9')
     ;
-
-fragment
-UNICODE_ESCAPE
-    :   '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
-    ;
-
-fragment
-HEX_DIGIT
-	: ('0'..'9' | 'a'..'f' | 'A'..'F')
-	;
 
 LONG_COMMENT
     : '--' LONG_BRACKET { skip(); }
-	;
+    ;
 
 fragment
 LONG_BRACKET
 @init { int n = 0; }
- 	: ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); }
+    : ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); }
     ;
 
 LINE_COMMENT
-	: '--' ~('\n' | '\r')* '\r'? '\n' { skip(); }
-	;
-
-WS
-	:  (' ' | '\t' | '\u000C') { skip(); }
+    : '--' ~('\n' | '\r')* '\r'? '\n' { skip(); }
     ;
 
-NEWLINE
-	: ('\r')? '\n' { skip(); }
-	;
+WS :  (' ' | '\t' | '\u000C') { skip(); } ;
+
+NEWLINE : ('\r')? '\n' { skip(); } ;

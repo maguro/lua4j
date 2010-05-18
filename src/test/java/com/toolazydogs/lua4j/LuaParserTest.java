@@ -87,7 +87,8 @@ public class LuaParserTest
                          "         print(v)\n" +
                          "         var = var + step\n" +
                          "       end\n" +
-                         "     end").chunk());
+                         "     end\n" +
+                         "i = i + 1").chunk());
 
         assertTree(LuaParser.STATEMENTS, "(STATEMENTS \n" +
                                          "  (BLOCK \n" +
@@ -125,6 +126,17 @@ public class LuaParserTest
         print(getParser("-i+1").exp());
         print(getParser("(-i)+1").exp());
         print(getParser("-(i+1)").exp());
+        print(getParser("2^2").exp());
+        print(getParser("not b or c > d").exp());
+        print(getParser("1/2 + -2%3 + y^314.16e-2").exp());
+        print(getParser("'alo\\n123\"'").string());
+        print(getParser("\"alo\\n123\\\"\"").string());
+        print(getParser("'\\97lo\\10\\04923\"'").string());
+        print(getParser("[[alo\n" +
+                        "123\"]]").string());
+        print(getParser("[==[\n" +
+                        "alo\n" +
+                        "123\"]==]").string());
 
         print(getParser("x = -i+1").chunk());
         print(getParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk());
