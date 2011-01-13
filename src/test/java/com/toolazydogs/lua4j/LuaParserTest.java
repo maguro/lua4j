@@ -148,7 +148,7 @@ public class LuaParserTest
         print(getParser("-(i+1)").exp());
         print(getParser("2^2").exp());
         print(getParser("not b or c > d").exp());
-        print(getParser("1/2 + -2%3 + y^314.16e-2").exp());
+        print(getParser("1/2 - -2%3 + y^314.16e-2").exp());
         print(getParser("'alo\\n123\"'").string());
         print(getParser("\"alo\\n123\\\"\"").string());
         print(getParser("'\\97lo\\10\\04923\"'").string());
