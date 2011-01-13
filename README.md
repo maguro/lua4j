@@ -5,7 +5,7 @@ Another Lua implementation in Java.
 
 *  Compiles lua to Java bytecode which executes directly in the JVM
 *  JNI bindings so that C code written for lua will work
-*  Supports [JSR 223](http://jcp.org/en/jsr/detail?id=223)
+*  Supports [JSR 223: Scripting for the Java Platform](http://jcp.org/en/jsr/detail?id=223)
 
 ### More Resources ###
 
