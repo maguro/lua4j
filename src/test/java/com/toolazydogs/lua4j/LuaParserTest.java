@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2009-2010 (C) The original author or authors
+ * Copyright 2009-2010 (C) Alan D. Cabrera
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,14 +80,14 @@ public class LuaParserTest
         assertTree(LuaParser.FNAMETHIS, "(FNAMETHIS foo b c d e)", parse("@foo.b.c.d:e", rule("funcname")));
 
         print(getParser("do\n" +
-                        "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
-                        "       if not (var and limit and step) then error() end\n" +
-                        "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
-                        "         local v = var\n" +
-                        "         print(v)\n" +
-                        "         var = var + step\n" +
-                        "       end\n" +
-                        "     end\n" +
+                        "  local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                        "  if not (var and limit and step) then error() end\n" +
+                        "  while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                        "    local v = var\n" +
+                        "    print(v)\n" +
+                        "    var = var + step\n" +
+                        "  end\n" +
+                        "end\n" +
                         "i = i + 1").chunk());
 
         print(getParser("x = 10                -- global variable\n" +
@@ -171,12 +171,12 @@ public class LuaParserTest
         print(getParser("foo or bar").exp());
         print(getParser("if foo or bar then a = 1 elseif car then a = 2 elseif cdr then a = 3 else a = 4 end").chunk());
 
-        print(getParser("foo.b.c.d:e").funcname());
+        print(getParser("function t.a.b.c:f (params) i= 1 end").chunk());
     }
 
     private static <T extends RuleReturnScope> T print(T scope)
     {
-        CommonTree t = (CommonTree) scope.getTree();
+        CommonTree t = (CommonTree)scope.getTree();
         System.out.println(t.toStringTree());
 
         return scope;
