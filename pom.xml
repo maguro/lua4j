@@ -1,6 +1,13 @@
 <project>
 
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.toolazydogs</groupId>
+        <artifactId>root</artifactId>
+        <version>1</version>
+    </parent>
+
     <groupId>com.toolazydogs.lua4j</groupId>
     <artifactId>lua4j</artifactId>
     <name>Lua for Java</name>
@@ -27,22 +34,6 @@
     </developers>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.5</source>
-                        <target>1.5</target>
-                        <showDeprecation>true</showDeprecation>
-                        <showWarnings>true</showWarnings>
-                        <compilerArgument>-Xlint:all,-serial,-unchecked</compilerArgument>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.antlr</groupId>
@@ -59,14 +50,6 @@
         </plugins>
     </build>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
     <scm>
         <connection>git://github.com/maguro/lua4j.git</connection>
         <developerConnection>git@github.com:maguro/lua4j.git</developerConnection>
@@ -81,8 +64,9 @@
 
         <dependency>
             <groupId>com.toolazydogs.aunit</groupId>
-            <artifactId>antlr-junit</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>aunit-junit</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -95,7 +79,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>3.3</version>
+            <version>3.2</version>
         </dependency>
 
         <dependency>
@@ -143,32 +127,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>lua4j-dist-m2-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/github-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>lua4j-dist-m2-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/github-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <distributionManagement>
 
         <repository>
@@ -184,61 +142,6 @@
         </snapshotRepository>
 
     </distributionManagement>
-
-    <profiles>
-
-        <profile>
-            <id>deploy</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.0.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-
-            </build>
-        </profile>
-
-    </profiles>
 
 </project>
 
