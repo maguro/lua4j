@@ -90,58 +90,5 @@
 
     </dependencies>
 
-
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr</artifactId>
-                <version>3.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.toolazydogs.aunit</groupId>
-                <artifactId>antlr-junit</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-compiler-api</artifactId>
-                <version>1.5.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>1.4.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.5</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
-    <distributionManagement>
-
-        <repository>
-            <id>lua4j-m2</id>
-            <name>Lua4j Release Repository</name>
-            <url>http://oss.sonatype.org/content/repositories/github-releases</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>lua4j-m2-snapshots</id>
-            <name>Lua4j Development Repository</name>
-            <url>http://oss.sonatype.org/content/repositories/github-snapshots</url>
-        </snapshotRepository>
-
-    </distributionManagement>
-
 </project>
 
