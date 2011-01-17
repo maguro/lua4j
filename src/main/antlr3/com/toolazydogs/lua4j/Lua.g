@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2011 (C) The original author or authors
+ * Copyright 2009-2011 (C) Alan D. Cabrera
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ tokens {
     ASSIGN;
     BLOCK;
     BREAK;
+    CHUNK;
     ELSEIF;
     EXPLIST;
     DEREF;
@@ -60,7 +61,7 @@ package com.toolazydogs.lua4j;
 @lexer::header
 {
 /**
- * Copyright 2009-2011 (C) The original author or authors
+ * Copyright 2009-2011 (C) Alan D. Cabrera
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +104,7 @@ protected void matchLongBracketClose(int length) throws MismatchedTokenException
 }
 
 chunk
-    : (stat ';'? -> ^(STATEMENTS stat+))* (laststat ';'?-> ^(STATEMENTS stat+ laststat))?
+    : (stat ';'? -> ^(CHUNK ^(STATEMENTS stat+)))* (laststat ';'?-> ^(CHUNK ^(STATEMENTS stat+ laststat)))?
     ;
 
 block
@@ -338,12 +339,24 @@ string
     | s=LONG_STRING -> ^(STRING $s)
     ;
 
-NORMAL_STRING
-    : '"' ( ESCAPE_SEQUENCE | ~('\\' | '"') )* '"'
+NORMAL_STRING         
+@init{StringBuilder sb = new StringBuilder();}
+    :   
+           '"' 
+           ( escaped=ESCAPE_SEQUENCE { sb.append(escaped.getText()); } | 
+             normal=~('"' | '\\')    { sb.appendCodePoint(normal); } )* 
+           '"'     
+           { setText(sb.toString()); }
     ;
 
-CHAR_STRING
-    : '\'' ( ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
+CHAR_STRING         
+@init{StringBuilder sb = new StringBuilder();}
+    :   
+           '\'' 
+           ( escaped=ESCAPE_SEQUENCE { sb.append(escaped.getText()); } | 
+             normal=~('\'' | '\\')    { sb.appendCodePoint(normal); } )* 
+           '\''     
+           { setText(sb.toString()); }
     ;
 
 LONG_STRING

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2011 (C) The original author or authors
+ * Copyright 2010-2011 (C) Alan D. Cabrera
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,65 @@ package com.toolazydogs.lua4j;
     void println(String s) { System.out.println(s); }
 }
 
-topdown : enterBlock | enterStatement ;
-bottomup : exitBlock ;
+topdown : enterAssign | enterBlock | enterChunk | enterDeref | enterS | enterStatement | enterVar | enterVarlist;
+bottomup : exitAssign | exitBlock | exitChunk | exitDeref | exitStatement | exitVar | exitVarlist;
+
+enterAssign
+	: ASSIGN { println("enter assign"); }
+	;
+
+exitAssign
+	: ASSIGN { println("exit assign"); }
+	;
 
 enterBlock
-	: BLOCK { println("enter"); }
+	: BLOCK { println("enter block"); }
 	;
 
 exitBlock
-	: BLOCK { println("exit"); }
+	: BLOCK { println("exit block"); }
 	;
 
+enterChunk
+	: CHUNK { println("enter chunk"); }
+	;
+
+exitChunk
+	: CHUNK { println("exit chunk"); }
+	;
+
+enterDeref
+	: DEREF { println("enter deref"); }
+	;
+
+exitDeref
+	: DEREF { println("exit deref"); }
+	;
 
 enterStatement
-	: STATEMENT { println("statement"); }
+	: STATEMENTS { println("enter statement"); }
+	;
+
+exitStatement
+	: STATEMENTS { println("exit statement"); }
+	;
+
+enterS
+	: ^(VAR v=NAME ^(DEREF (args+=.)+)) { println("enter deref " + $v.text + " args " +$args.size()); }
+	;
+	
+enterVar
+	: ^(VAR v=NAME) { println("enter var '" + $v.text + "'" ); }
+	;
+
+exitVar
+	: ^(VAR v=NAME) { println("exit var '" + $v.text + "'" ); }
+	;
+
+enterVarlist
+	: VARLIST { println("enter varlist"); }
+	;
+
+exitVarlist
+	: VARLIST { println("exit varlist"); }
 	;

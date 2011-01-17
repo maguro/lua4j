@@ -19,24 +19,43 @@ package com.toolazydogs.lua4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import com.toolazydogs.aunit.AntlrTestRunner;
+import com.toolazydogs.aunit.Configuration;
+import static com.toolazydogs.aunit.CoreOptions.lexer;
+import static com.toolazydogs.aunit.CoreOptions.options;
+import static com.toolazydogs.aunit.CoreOptions.parser;
+import com.toolazydogs.aunit.Option;
+import com.toolazydogs.aunit.Work;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
  * @version $Revision: $ $Date: $
  */
+@RunWith(AntlrTestRunner.class)
 public class LuaWalkerTest
 {
+    @Configuration
+    public static Option[] configure()
+    {
+        return options(
+                lexer(LuaLexer.class),
+                parser(LuaParser.class)
+        );
+    }
+
     @Test
     public void test() throws Exception
     {
-        LuaParser p = getParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20");
-        RuleReturnScope r = p.block();
+        LuaParser p = Work.generateParser("i, v:car(a, b, c):cdr(1, 2, 3):bar(args1)'str':foo'str2'(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20");
+
+        RuleReturnScope r = print(p.chunk());
 
         CommonTree tree = (CommonTree)r.getTree();
 
@@ -45,11 +64,11 @@ public class LuaWalkerTest
         tp.downup(tree);
     }
 
-    private LuaParser getParser(String src) throws IOException
+    private static <T extends RuleReturnScope> T print(T scope)
     {
-        ANTLRInputStream input = new ANTLRInputStream(new ByteArrayInputStream(src.getBytes()));
-        LuaLexer lexer = new LuaLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new LuaParser(tokens);
+        CommonTree t = (CommonTree)scope.getTree();
+        System.out.println(t.toStringTree());
+
+        return scope;
     }
 }
