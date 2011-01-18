@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.toolazydogs.aunit</groupId>
             <artifactId>aunit-junit</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
             <scope>test</scope>
         </dependency>
 
