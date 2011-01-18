@@ -50,16 +50,41 @@ public class LuaParserTest
     }
 
     @Test
+    public void testString() throws Exception
+    {
+        assertToken(LuaLexer.NORMAL_STRING, "abc", scan("\"abc\""));
+        assertToken(LuaLexer.CHAR_STRING, "abc", scan("'abc'"));
+
+        assertToken(LuaLexer.NORMAL_STRING, "alo", scan("\"\\97lo\""));
+        assertToken(LuaLexer.CHAR_STRING, "alo", scan("'\\97lo'"));
+
+        assertToken(LuaLexer.NORMAL_STRING, "Zalo", scan("\"Z\\97lo\""));
+        assertToken(LuaLexer.CHAR_STRING, "Zalo", scan("'Z\\97lo'"));
+
+        assertToken(LuaLexer.NORMAL_STRING, "alo\n123\"", scan("\"alo\\n123\\\"\""));
+        assertToken(LuaLexer.CHAR_STRING, "alo\n123\"", scan("'alo\\n123\"'"));
+        assertToken(LuaLexer.LONG_STRING, "alo\n123\"", scan("[[alo\n123\"]]"));
+        assertToken(LuaLexer.LONG_STRING, "alo\n123\"", scan("[==[alo\n123\"]==]"));
+
+        assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("\"alo\\n123\\\"\"", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("'alo\\n123\"'", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("[[alo\n123\"]]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("[==[alo\n123\"]==]", rule("string")));
+
+        assertTree(LuaParser.STRING, "(STRING '\nte]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'foo')", parse("\"foo\"", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'foo')", parse("'foo'", rule("string")));
+    }
+
+    @Test
     public void test() throws Exception
     {
-        assertToken(LuaLexer.NAME, "abc", scan("abc"));
-
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", rule("namelist")));
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", rule("namelist")));
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", rule("namelist")));
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", rule("namelist")));
 
-        assertTree(LuaParser.STRING, "(STRING '[===[\nte]==]s]====]t]===]')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING '\nte]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("\"foo\"", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("'foo'", rule("string")));
 

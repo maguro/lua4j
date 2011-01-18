@@ -76,6 +76,8 @@ package com.toolazydogs.lua4j;
  * limitations under the License.
  */
 package com.toolazydogs.lua4j;
+
+import java.io.UnsupportedEncodingException;
 }
 @lexer::members
 {
@@ -100,6 +102,25 @@ protected void matchLongBracketClose(int length) throws MismatchedTokenException
     builder.append(']');
 
     match(builder.toString());
+}
+
+protected String toAscii(String... d) throws RecognitionException
+{
+    StringBuilder sb = new StringBuilder(d[0]);
+    for (int i=1; i<d.length; i++) sb.append(d[i]);
+        
+    byte[] b = new byte[1];
+
+    b[0] = (byte)Integer.parseInt(sb.toString());
+
+    try
+    {
+        return new String(b, "ASCII");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+        throw new RecognitionException();
+    }
 }
 }
 
@@ -342,21 +363,21 @@ string
 NORMAL_STRING         
 @init{StringBuilder sb = new StringBuilder();}
     :   
-           '"' 
-           ( escaped=ESCAPE_SEQUENCE { sb.append(escaped.getText()); } | 
-             normal=~('"' | '\\')    { sb.appendCodePoint(normal); } )* 
-           '"'     
-           { setText(sb.toString()); }
+        '"' 
+        ( escaped=ESCAPE_SEQUENCE { sb.append(getText()); } | 
+          normal=~('"' | '\\')    { sb.appendCodePoint(normal); } )* 
+        '"'     
+        { setText(sb.toString()); }
     ;
 
 CHAR_STRING         
-@init{StringBuilder sb = new StringBuilder();}
+@init{ StringBuilder sb = new StringBuilder(); }
     :   
-           '\'' 
-           ( escaped=ESCAPE_SEQUENCE { sb.append(escaped.getText()); } | 
+        '\'' 
+        ( escaped=ESCAPE_SEQUENCE { sb.append(getText()); } | 
              normal=~('\'' | '\\')    { sb.appendCodePoint(normal); } )* 
-           '\''     
-           { setText(sb.toString()); }
+        '\''     
+        { setText(sb.toString()); }
     ;
 
 LONG_STRING
@@ -365,15 +386,26 @@ LONG_STRING
 
 fragment
 ESCAPE_SEQUENCE
-    : '\\' ('a' | 'b' | 'f' | 'n' | 'r' | 't' | 'v' | '\"' | '\'' | '\\')
+    : '\\' 
+    	( 'a'  { setText("\0007"); }
+    	| 'b'  { setText("\b"); }
+    	| 'f'  { setText("\f"); }
+    	| 'n'  { setText("\n"); }
+    	| 'r'  { setText("\r"); }
+    	| 't'  { setText("\t"); }
+    	| 'v'  { setText("\013"); }
+    	| '"'  { setText("\""); }
+    	| '\'' { setText("\'"); }
+    	| '\\' { setText("\\"); }
+    	)
     | ASCII_ESCAPE
     ;
 
 fragment
 ASCII_ESCAPE
-    : '\\' ('0'..'9') ('0'..'9') ('0'..'9')
-    | '\\' ('0'..'9') ('0'..'9')
-    | '\\' ('0'..'9')
+    : '\\' d1=DIGIT d2=DIGIT d3=DIGIT { setText(toAscii(d1.getText(), d2.getText(), d3.getText())); }
+    | '\\' d1=DIGIT d2=DIGIT { setText(toAscii(d1.getText(), d2.getText())); }
+    | '\\' d1=DIGIT { setText(toAscii(d1.getText())); }
     ;
 
 LONG_COMMENT
@@ -383,7 +415,7 @@ LONG_COMMENT
 fragment
 LONG_BRACKET
 @init { int n = 0; }
-    : ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); }
+    : ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); setText(getText().substring(n+2, getText().length()-(n+2))); }
     ;
 
 LINE_COMMENT

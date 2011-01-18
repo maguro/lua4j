@@ -16,8 +16,7 @@
  */
 package com.toolazydogs.lua4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import com.toolazydogs.aunit.AntlrTestRunner;
 import com.toolazydogs.aunit.Configuration;
@@ -26,8 +25,6 @@ import static com.toolazydogs.aunit.CoreOptions.options;
 import static com.toolazydogs.aunit.CoreOptions.parser;
 import com.toolazydogs.aunit.Option;
 import com.toolazydogs.aunit.Work;
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
