@@ -70,8 +70,9 @@ public class LuaParserTest
         assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("'alo\\n123\"'", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("[[alo\n123\"]]", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("[==[alo\n123\"]==]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'alo\n123\"')", parse("[==[\nalo\n123\"]==]", rule("string")));
 
-        assertTree(LuaParser.STRING, "(STRING '\nte]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'te]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("\"foo\"", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("'foo'", rule("string")));
     }
@@ -84,7 +85,7 @@ public class LuaParserTest
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", rule("namelist")));
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", rule("namelist")));
 
-        assertTree(LuaParser.STRING, "(STRING '\nte]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
+        assertTree(LuaParser.STRING, "(STRING 'te]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("\"foo\"", rule("string")));
         assertTree(LuaParser.STRING, "(STRING 'foo')", parse("'foo'", rule("string")));
 

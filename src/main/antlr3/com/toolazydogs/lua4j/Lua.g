@@ -415,7 +415,13 @@ LONG_COMMENT
 fragment
 LONG_BRACKET
 @init { int n = 0; }
-    : ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* { matchLongBracketClose(n); setText(getText().substring(n+2, getText().length()-(n+2))); }
+    : ('['('=' {++n;})*'[') ({isLongBracketOpen(n)}? => .)* 
+    { 
+        matchLongBracketClose(n);
+        String text = getText().substring(n+2, getText().length()-(n+2));
+        if (text.charAt(0) == '\n') text = text.substring(1, text.length());
+        setText(text);
+    }
     ;
 
 LINE_COMMENT
