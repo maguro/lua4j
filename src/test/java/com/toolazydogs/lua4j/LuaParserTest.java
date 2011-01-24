@@ -78,17 +78,8 @@ public class LuaParserTest
     }
 
     @Test
-    public void test() throws Exception
+    public void testNumbers() throws Exception
     {
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", rule("namelist")));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", rule("namelist")));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", rule("namelist")));
-        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", rule("namelist")));
-
-        assertTree(LuaParser.STRING, "(STRING 'te]==]s]====]t')", parse("[===[\nte]==]s]====]t]===]", rule("string")));
-        assertTree(LuaParser.STRING, "(STRING 'foo')", parse("\"foo\"", rule("string")));
-        assertTree(LuaParser.STRING, "(STRING 'foo')", parse("'foo'", rule("string")));
-
         assertTree(LuaParser.INTEGER, "3", parse("3", rule("number")));
         assertTree(LuaParser.FLOAT, "3.0", parse("3.0", rule("number")));
         assertTree(LuaParser.FLOAT, "3.1416", parse("3.1416", rule("number")));
@@ -96,6 +87,36 @@ public class LuaParserTest
         assertTree(LuaParser.EXPONENT, "0.31416E1", parse("0.31416E1", rule("number")));
         assertTree(LuaParser.HEX, "0xff", parse("0xff", rule("number")));
         assertTree(LuaParser.HEX, "0x56", parse("0x56", rule("number")));
+    }
+
+    @Test
+    public void testExpressions() throws Exception
+    {
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (+ (VAR i) 1)))", parse("i=i+1", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (+ (NEGATE (VAR i)) 1)))", parse("i=-i+1", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (+ (NEGATE (SINGLE (NEGATE (VAR i)))) 1)))", parse("i=-(-i)+1", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (NEGATE (SINGLE (+ (VAR i) 1)))))", parse("i=-(i+1)", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (+ 1 (NEGATE (VAR z)))))", parse("i=1+ -z", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (^ 2 2)))", parse("i=2^2", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (or (not (VAR b)) (> (VAR c) (VAR d)))))", parse("i=not b or c > d", rule("stat")));
+        assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i)) (EXPLIST (+ (- (/ 1 2) (% (NEGATE 2) 3)) (^ (VAR y) 314.16e-2))))", parse("i=1/2 - -2%3 + y^314.16e-2", rule("stat")));
+    }
+
+    @Test
+    public void testFunctionCalls() throws Exception
+    {
+        print(Work.<LuaParser>generateParser("f(x,y,z)").chunk());
+        print(Work.<LuaParser>generateParser("e[i]()").chunk());
+        print(Work.<LuaParser>generateParser("e[i]():f(x,y,z):g(x,y,z)").chunk());
+    }
+
+    @Test
+    public void test() throws Exception
+    {
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,def", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc,  def", rule("namelist")));
+        assertTree(LuaParser.NAMELIST, "(NAMELIST abc def)", parse("abc --[=[ roo ]=], def-- simple comment\n", rule("namelist")));
 
         assertTree(LuaParser.ASSIGN, "(ASSIGN (VARLIST (VAR i) (VAR a (DEREF (VAR i)))) (EXPLIST (+ (VAR i) 1) 20))", parse("i, a[i] = i+1, 20", rule("stat")));
 
@@ -142,8 +163,20 @@ public class LuaParserTest
                                              "       end\n" +
                                              "     end").chunk());
 
+        print(Work.<LuaParser>generateParser("i, a[i] = i+1, (f(x,y,z))").chunk());
+
+        print(Work.<LuaParser>generateParser("do\n" +
+                         "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                         "       if not (var and limit and step) then error() end\n" +
+                         "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                         "         local v = var\n" +
+                         "         print(v)\n" +
+                         "         var = var + step\n" +
+                         "       end\n" +
+                         "     end").chunk());
+
         assertTree(LuaParser.CHUNK,
-                   "(CHUNK (STATEMENTS (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST var limit step) (EXPLIST (VAR tonumber) (ARGS (EXPLIST (VAR e1))) (VAR tonumber) (ARGS (EXPLIST (VAR e2))) (VAR tonumber) (ARGS (EXPLIST (VAR e3))))) (IF (not (and (VAR var) (VAR limit) (VAR step))) (BLOCK (CHUNK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST)))))) (WHILE (or (and (> (VAR step) 0) (<= (VAR var) (VAR limit))) (and (<= (VAR step) 0) (>= (VAR var) (VAR limit)))) (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST v) (EXPLIST (VAR var))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step)))))))))))))",
+                   "(CHUNK (STATEMENTS (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST var limit step) (EXPLIST (VAR tonumber) (ARGS (EXPLIST (VAR e1))) (VAR tonumber) (ARGS (EXPLIST (VAR e2))) (VAR tonumber) (ARGS (EXPLIST (VAR e3))))) (IF (not (SINGLE (and (VAR var) (VAR limit) (VAR step)))) (BLOCK (CHUNK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST)))))) (WHILE (or (SINGLE (and (> (VAR step) 0) (<= (VAR var) (VAR limit)))) (SINGLE (and (<= (VAR step) 0) (>= (VAR var) (VAR limit))))) (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST v) (EXPLIST (VAR var))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step)))))))))))))",
                    parse("do\n" +
                          "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
                          "       if not (var and limit and step) then error() end\n" +
@@ -154,7 +187,7 @@ public class LuaParserTest
                          "       end\n" +
                          "     end", rule("chunk")));
 
-        print(Work.<LuaParser>generateParser("line = \"Hello world!\"; print(line)").chunk());
+        print(Work.<LuaParser>generateParser("line = \"Hello world!\", f() print(line)").chunk());
 
         assertTree(LuaParser.CHUNK,
                    "(CHUNK (STATEMENTS (ASSIGN (VARLIST (VAR line)) (EXPLIST (STRING 'Hello world!'))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR line))))))",
@@ -165,29 +198,6 @@ public class LuaParserTest
     @Test
     public void testOld() throws Exception
     {
-        print(Work.<LuaParser>generateParser("i+1").exp());
-        print(Work.<LuaParser>generateParser("-i+1").exp());
-        print(Work.<LuaParser>generateParser("(-i)+1").exp());
-        print(Work.<LuaParser>generateParser("-(i+1)").exp());
-        print(Work.<LuaParser>generateParser("2^2").exp());
-        print(Work.<LuaParser>generateParser("not b or c > d").exp());
-        print(Work.<LuaParser>generateParser("1/2 - -2%3 + y^314.16e-2").exp());
-        print(Work.<LuaParser>generateParser("'alo\\n123\"'").string());
-        print(Work.<LuaParser>generateParser("\"alo\\n123\\\"\"").string());
-        print(Work.<LuaParser>generateParser("'\\97lo\\10\\04923\"'").string());
-        print(Work.<LuaParser>generateParser("[[alo\n" +
-                                             "123\"]]").string());
-        print(Work.<LuaParser>generateParser("[==[\n" +
-                                             "alo\n" +
-                                             "123\"]==]").string());
-
-        print(Work.<LuaParser>generateParser("x = -i+1").chunk());
-        print(Work.<LuaParser>generateParser("abc --[=[ roo ]=]= def-- simple comment\n").chunk());
-        print(Work.<LuaParser>generateParser("abc --[=[ roo ]=], dog= def,cat-- simple comment\n").chunk());
-
-        print(Work.<LuaParser>generateParser("a = 1 b = 2").chunk());
-        print(Work.<LuaParser>generateParser("a, b = b, a b = 2").chunk());
-        print(Work.<LuaParser>generateParser("a = 1 b =\n2").chunk());
         print(Work.<LuaParser>generateParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
         print(Work.<LuaParser>generateParser("i, a:foo{1,2,3}[i] = i+1, 20").chunk());
         print(Work.<LuaParser>generateParser("i, v:car(a, b, c):cdr(1, 2, 3):bar1(args1)(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20").chunk());

@@ -42,15 +42,15 @@ public class LuaWalkerTest
     public static Option[] configure()
     {
         return options(
-                lexer(LuaLexer.class),
-                parser(LuaParser.class)
+                lexer(LuaLexer.class).failOnError(),
+                parser(LuaParser.class).failOnError()
         );
     }
 
     @Test
-    public void test() throws Exception
+    public void odd() throws Exception
     {
-        LuaParser p = Work.generateParser("i, v:car(a, b, c):cdr(1, 2, 3):bar(args1)'str':foo'str2'(z)(y){4, 5, 6, }:bar2(args2).test = i+1, 20");
+        LuaParser p = Work.generateParser("g()[i], i = 2, f()  line = \"Hello world!\" print(line)");
 
         RuleReturnScope r = print(p.chunk());
 

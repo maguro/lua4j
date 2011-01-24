@@ -30,15 +30,52 @@ package com.toolazydogs.lua4j;
     void println(String s) { System.out.println(s); }
 }
 
-topdown : enterAssign | enterBlock | enterChunk | enterDeref | enterS | enterStatement | enterVar | enterVarlist;
-bottomup : exitAssign | exitBlock | exitChunk | exitDeref | exitStatement | exitVar | exitVarlist;
+topdown 
+        : enterArgs 
+        | enterAssign 
+        | enterBlock 
+        | enterChunk 
+        | enterDeref 
+        | enterExplist 
+        | enterFuncall 
+        | enterS 
+        | enterStatement 
+        | enterString 
+        | enterVar 
+        | enterVarlist
+        ;
+
+bottomup 
+         : exitArgs 
+         | exitAssign 
+         | exitBlock 
+         | exitChunk 
+         | exitDeref 
+         | exitExplist 
+         | exitFuncall 
+         | exitStatement 
+         | exitString 
+         | exitVar 
+         | exitVarlist
+         ;
+
+enterArgs
+	: ARGS { println("enter args"); }
+	;
+
+exitArgs
+	: ARGS { println("exit args"); }
+	;
 
 enterAssign
 	: ASSIGN { println("enter assign"); }
 	;
 
 exitAssign
-	: ASSIGN { println("exit assign"); }
+	: ASSIGN { 
+		println("exit assign");
+		println("\tadd code to copy expressions to var list"); 
+	}
 	;
 
 enterBlock
@@ -50,11 +87,17 @@ exitBlock
 	;
 
 enterChunk
-	: CHUNK { println("enter chunk"); }
+	: CHUNK { 
+		println("enter chunk"); 
+		println("\tadd code to push scope on the scope stack"); 
+	}
 	;
 
 exitChunk
-	: CHUNK { println("exit chunk"); }
+	: CHUNK {
+		println("exit chunk");
+		println("\tadd code to pop scope on the scope stack"); 
+	}
 	;
 
 enterDeref
@@ -65,12 +108,36 @@ exitDeref
 	: DEREF { println("exit deref"); }
 	;
 
+enterExplist
+	: EXPLIST { println("enter explist"); }
+	;
+
+exitExplist
+	: EXPLIST { println("exit explist"); }
+	;
+
+enterFuncall
+	: FUNCALL { println("enter funcall"); }
+	;
+
+exitFuncall
+	: FUNCALL { println("exit funcall"); }
+	;
+
 enterStatement
 	: STATEMENTS { println("enter statement"); }
 	;
 
 exitStatement
 	: STATEMENTS { println("exit statement"); }
+	;
+
+enterString
+	: ^(STRING s=.) { println("enter string '" + $s.getText() + "'"); }
+	;
+
+exitString
+	: ^(STRING s=.) { println("exit string '" + $s.getText() + "'"); }
 	;
 
 enterS

@@ -39,11 +39,13 @@ tokens {
     IF;
     LOCAL;
     NAMELIST;
+    NEGATE;
     NUMBER;
     PARAMETERS;
     PATH;
     REPEAT;
     RETURN;
+    SINGLE;
     STATEMENTS;
     STRING;
     TBLCTOR;
@@ -172,7 +174,8 @@ varlist
     ;
 
 var
-    : NAME varEnd* -> ^(VAR NAME varEnd*)
+    : NAME varEnd+ -> ^(VAR NAME varEnd+)
+    | NAME -> ^(VAR NAME)
     | '(' exp ')' varEnd+ -> ^(VAR '(' exp ')' varEnd+)
     ;
 
@@ -234,7 +237,7 @@ atom 	: 'nil'
         | '...'
 	;
 
-unary_op : 'not' | '#' | '-' ;	
+unary_op : 'not' | '#' | '-' -> NEGATE ;	
 
 b_op : '*' | '/' | '%' ;
 	 		
@@ -252,7 +255,7 @@ functioncall
 
 varOrExp
     : var
-    | '(' exp ')' -> exp
+    | '(' exp ')' -> ^(SINGLE exp)
     ;
 
 nameAndArgs
@@ -298,30 +301,6 @@ field
 fieldsep
     : ','
     | ';'
-    ;
-
-binop
-    : '+'
-    | '-'
-    | '*'
-    | '/'
-    | '^'
-    | '%'
-    | '..'
-    | '<'
-    | '<='
-    | '>'
-    | '>='
-    | '=='
-    | '~='
-    | 'and'
-    | 'or'
-    ;
-
-unop
-    : '-'
-    | 'not'
-    | '#'
     ;
 
 NAME
