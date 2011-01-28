@@ -174,8 +174,7 @@ varlist
     ;
 
 var
-    : NAME varEnd+ -> ^(VAR NAME varEnd+)
-    | NAME -> ^(VAR NAME)
+    : NAME varEnd* -> ^(VAR NAME varEnd*)
     | '(' exp ')' varEnd+ -> ^(VAR '(' exp ')' varEnd+)
     ;
 
@@ -246,7 +245,8 @@ compare_op : '<' | '<=' | '>' | '>=' | '==' | '~=' ;
 add_sub_op : '+' | '-' ;
 
 prefixexp
-    : varOrExp nameAndArgs*
+    : varOrExp nameAndArgs+ -> ^(FUNCALL varOrExp nameAndArgs+)
+    | varOrExp
     ;
 
 functioncall

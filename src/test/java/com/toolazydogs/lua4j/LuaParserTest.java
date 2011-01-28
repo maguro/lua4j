@@ -105,12 +105,15 @@ public class LuaParserTest
     @Test
     public void testFunctionCalls() throws Exception
     {
+        LuaParser parser = Work.<LuaParser>generateParser("zzz[i]()");
+        print(parser.chunk());
         print(Work.<LuaParser>generateParser("f(x,y,z)").chunk());
-        print(Work.<LuaParser>generateParser("e[i]()").chunk());
-        print(Work.<LuaParser>generateParser("e[i]():f(x,y,z):g(x,y,z)").chunk());
+        print(Work.<LuaParser>generateParser("zzz[i]()").chunk());
+        print(Work.<LuaParser>generateParser("val = e[i]()").chunk());
+        print(Work.<LuaParser>generateParser("val = e[i]():f(x,y,z):g(x,y,z)").chunk());
+        print(Work.<LuaParser>generateParser("a, b = 1, (f())").chunk());
     }
 
-    @Test
     public void test() throws Exception
     {
         assertTree(LuaParser.NAMELIST, "(NAMELIST abc )", parse("abc", rule("namelist")));
@@ -166,14 +169,14 @@ public class LuaParserTest
         print(Work.<LuaParser>generateParser("i, a[i] = i+1, (f(x,y,z))").chunk());
 
         print(Work.<LuaParser>generateParser("do\n" +
-                         "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
-                         "       if not (var and limit and step) then error() end\n" +
-                         "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
-                         "         local v = var\n" +
-                         "         print(v)\n" +
-                         "         var = var + step\n" +
-                         "       end\n" +
-                         "     end").chunk());
+                                             "       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)\n" +
+                                             "       if not (var and limit and step) then error() end\n" +
+                                             "       while (step > 0 and var <= limit) or (step <= 0 and var >= limit) do\n" +
+                                             "         local v = var\n" +
+                                             "         print(v)\n" +
+                                             "         var = var + step\n" +
+                                             "       end\n" +
+                                             "     end").chunk());
 
         assertTree(LuaParser.CHUNK,
                    "(CHUNK (STATEMENTS (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST var limit step) (EXPLIST (VAR tonumber) (ARGS (EXPLIST (VAR e1))) (VAR tonumber) (ARGS (EXPLIST (VAR e2))) (VAR tonumber) (ARGS (EXPLIST (VAR e3))))) (IF (not (SINGLE (and (VAR var) (VAR limit) (VAR step)))) (BLOCK (CHUNK (STATEMENTS (FUNCALL (VAR error) (ARGS EXPLIST)))))) (WHILE (or (SINGLE (and (> (VAR step) 0) (<= (VAR var) (VAR limit)))) (SINGLE (and (<= (VAR step) 0) (>= (VAR var) (VAR limit))))) (BLOCK (CHUNK (STATEMENTS (LOCAL (NAMELIST v) (EXPLIST (VAR var))) (FUNCALL (VAR print) (ARGS (EXPLIST (VAR v)))) (ASSIGN (VARLIST (VAR var)) (EXPLIST (+ (VAR var) (VAR step)))))))))))))",
@@ -195,7 +198,6 @@ public class LuaParserTest
 
     }
 
-    @Test
     public void testOld() throws Exception
     {
         print(Work.<LuaParser>generateParser("i, a:foo(1, 2, 3)[i] = i+1, 20").chunk());
