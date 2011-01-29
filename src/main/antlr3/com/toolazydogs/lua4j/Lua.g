@@ -54,6 +54,8 @@ tokens {
     VAR;
     VARLIST;
     WHILE;
+    
+    FOO;
 }
 
 @header
@@ -139,7 +141,7 @@ stat
     | functioncall
     | 'do' block 'end' -> block
     | 'while' exp 'do' block 'end' -> ^(WHILE exp block)
-    | 'repeat' block 'until' exp -> ^(REPEAT block exp)
+    | lc='repeat' block 'until' exp -> ^(REPEAT[$lc,"REPEAT"] block exp)
     | 'if' exp 'then' block 'end' -> ^(IF exp block)
     | 'if' exp 'then' ifblock=block 'else' elseblock=block 'end' -> ^(IF exp $ifblock $elseblock)
     | 'if' exp 'then' ifblock=block elseif+ 'end' -> ^(IF exp $ifblock elseif+)
@@ -174,12 +176,12 @@ varlist
     ;
 
 var
-    : NAME varEnd* -> ^(VAR NAME varEnd*)
-    | '(' exp ')' varEnd+ -> ^(VAR '(' exp ')' varEnd+)
+    : (NAME -> ^(VAR NAME)) (varEnd -> ^(DEREF ^(VAR NAME) varEnd+))*
+    | '(' exp ')' varEnd+ -> ^(DEREF exp varEnd+)
     ;
 
 varEnd
-    : nameAndArgs* '[' exp ']' -> ^(DEREF nameAndArgs* exp)
+    : nameAndArgs* '[' exp ']' -> ^(FOO nameAndArgs* exp)
     | nameAndArgs* '.' NAME -> ^(DEREF nameAndArgs* NAME)
     ;
 

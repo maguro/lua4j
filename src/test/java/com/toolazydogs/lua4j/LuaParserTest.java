@@ -105,13 +105,13 @@ public class LuaParserTest
     @Test
     public void testFunctionCalls() throws Exception
     {
-        LuaParser parser = Work.<LuaParser>generateParser("zzz[i]()");
-        print(parser.chunk());
-        print(Work.<LuaParser>generateParser("f(x,y,z)").chunk());
-        print(Work.<LuaParser>generateParser("zzz[i]()").chunk());
-        print(Work.<LuaParser>generateParser("val = e[i]()").chunk());
-        print(Work.<LuaParser>generateParser("val = e[i]():f(x,y,z):g(x,y,z)").chunk());
-        print(Work.<LuaParser>generateParser("a, b = 1, (f())").chunk());
+      print(Work.<LuaParser>generateParser("zzz[i]()").functioncall());
+      print(Work.<LuaParser>generateParser("e[i]():f(x,y,z):g(x,y,z)").functioncall());
+//        print(Work.<LuaParser>generateParser("a(x,y,z) b(x,y,z) c(x,y,z) d(x,y,z)").chunk());
+//        print(Work.<LuaParser>generateParser("zzz[i]()").chunk());
+//        print(Work.<LuaParser>generateParser("val = e[i]()").chunk());
+//        print(Work.<LuaParser>generateParser("val = e[i]():f(x,y,z):g(x,y,z)").chunk());
+//        print(Work.<LuaParser>generateParser("a, b = 1, (f())").chunk());
     }
 
     public void test() throws Exception
