@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
-                <version>3.3</version>
+                <version>${antlrVersion}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -57,6 +57,7 @@
     </scm>
 
     <properties>
+        <antlrVersion>3.3</antlrVersion>
         <mavenVersion>2.2.0</mavenVersion>
     </properties>
 
@@ -79,7 +80,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>3.2</version>
+            <version>${antlrVersion}</version>
         </dependency>
 
         <dependency>
